@@ -44,6 +44,9 @@ class FLauncherChannel {
 
   Future<void> startAmbientMode() async => await _methodChannel.invokeMethod("startAmbientMode");
 
+  Future<Map<dynamic, dynamic>> clearMemory() async =>
+      (await _methodChannel.invokeMethod("clearMemory") as Map<dynamic, dynamic>?) ?? <dynamic, dynamic>{};
+
   void addAppsChangedListener(void Function(Map<dynamic, dynamic>) listener) =>
       _eventChannel.receiveBroadcastStream().listen((event) => listener(event));
 }

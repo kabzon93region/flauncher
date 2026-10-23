@@ -58,6 +58,62 @@ $ adb shell pm enable com.google.android.tungsten.setupwraith
 #### Known issues
 On Chromecast with Google TV (maybe others), the "YouTube" remote button will stop working if the default launcher is disabled. As a workaround, you can use [Button Mapper](https://play.google.com/store/apps/details?id=flar2.homebutton) to remap it correctly.
 
+## Модификации этой форки (TV-приставка VONTAR X4)
+
+Эта форка содержит доработки для домашней Android TV-приставки (VONTAR X4,
+Android 11, root через Magisk). Оригинал: [GitLab flauncher/flauncher](https://gitlab.com/flauncher/flauncher).
+
+### Что изменено
+
+- **Кнопка-ракета 🚀** рядом со шестерёнкой настроек — очистка оперативной
+  памяти. Снекбар показывает результат: `Закрыто фоновых приложений: N ·
+  освобождено X МБ · свободно Y МБ`.
+  - В цель попадают **только запущенные фоновые процессы сторонних
+    приложений**: системные пакеты не трогаются вообще (отбор по
+    `pm list packages -3` / фильтр `FLAG_SYSTEM`);
+  - **лаунчер и Magisk явно исключены** из списка целей; AMS дополнительно
+    не даёт убить foreground/foreground-service;
+  - основной путь — через `su` (разрешение выдано в Magisk DB policies,
+    без промптов), запасной путь без рута — `killBackgroundProcesses`;
+  - цикл очистки выполняется в **фоновом потоке**, интерфейс не замирает.
+- **Удалён Firebase** (core/analytics/crashlytics/remote config), связка
+  `google-services`/`crashlytics-gradle` в Gradle и устаревшие тесты,
+  покрывавшие его. Логика не зависела от Firebase: Unsplash-ключи
+  обнулены, тумблеры отчётов/аналитики убраны.
+- **`device-config/flauncher-layout.json`** — экспорт раскладки главного
+  экрана (категории, приложения, порядок); см.
+  [device-config/README.md](device-config/README.md). Три пакета
+  вырезаны из экспорта по решению владельца.
+
+### Сборка
+
+Требуется **Flutter 3.7.5** (точный пин в `pubspec.yaml`, Dart 2.19),
+JDK 17, Android SDK с платформой `android-33`.
+
+```shell
+flutter pub get
+flutter build apk --release
+# результат: build/app/outputs/flutter-apk/app-release.apk
+```
+
+Release подписывается **debug-ключом** машины сборщика (см.
+`android/app/build.gradle`), поэтому на устройстве со старой подписью —
+сначала `adb uninstall me.efesser.flauncher`, затем установка; конфиг
+предварительно выгрузить (`app_flutter/db.sqlite`) и залить обратно.
+
+### Установка на приставку
+
+```shell
+adb install -r build/app/outputs/flutter-apk/app-release.apk
+adb shell cmd package set-home-activity me.efesser.flauncher/.MainActivity
+```
+
+Если нужен root-путь ракеты — выдать Magisk разрешение (uid подставить
+свой): `INSERT INTO policies VALUES(<uid>, 'me.efesser.flauncher', 2, 0, 0, 0)`
+через `magisk --sqlite`.
+
+---
+
 ## Wallpaper
 Because Android's `WallpaperManager` is not available on some Android TV devices, FLauncher implements its own wallpaper management method.
 

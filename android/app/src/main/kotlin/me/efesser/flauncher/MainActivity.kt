@@ -18,6 +18,7 @@
 
 package me.efesser.flauncher
 
+import android.app.ActivityManager
 import android.content.Intent
 import android.content.Intent.*
 import android.content.pm.*
@@ -26,6 +27,7 @@ import android.graphics.Canvas
 import android.graphics.drawable.Drawable
 import android.net.Uri
 import android.os.Build
+import android.os.Process
 import android.os.UserHandle
 import android.provider.Settings
 import androidx.annotation.NonNull
@@ -57,6 +59,14 @@ class MainActivity : FlutterActivity() {
                 "isDefaultLauncher" -> result.success(isDefaultLauncher())
                 "checkForGetContentAvailability" -> result.success(checkForGetContentAvailability())
                 "startAmbientMode" -> result.success(startAmbientMode())
+                "clearMemory" -> {
+                    // Kill loop can take a couple of seconds: run it off the UI
+                    // thread and deliver the result back on the main thread.
+                    Thread {
+                        val stats = clearMemory()
+                        runOnUiThread { result.success(stats) }
+                    }.start()
+                }
                 else -> throw IllegalArgumentException()
             }
         }
@@ -205,6 +215,108 @@ class MainActivity : FlutterActivity() {
         true
     } catch (e: Exception) {
         false
+    }
+
+    // Rocket button: free RAM by killing BACKGROUND processes of THIRD-PARTY
+    // apps only. Protection guarantees:
+    //  - system apps are never in the target list (pm list packages -3 for the
+    //    root path, FLAG_SYSTEM filter for the fallback), so the box stack is
+    //    untouched;
+    //  - this launcher and Magisk are explicitly excluded (critical set);
+    //  - ActivityManager itself refuses to kill foreground / visible /
+    //    foreground-service processes, so a running app stays alive.
+    // Rocket button result: how many background processes were closed, how
+    // much memory the cleanup released and how much is free right now.
+    private fun clearMemory(): Map<String, Any> {
+        val freeBefore = readMemFreeKb()
+        val killed = killThirdPartyBackground()
+        val freeAfter = readMemFreeKb()
+        val freedKb = if (freeBefore >= 0 && freeAfter >= 0) {
+            (freeAfter - freeBefore).coerceAtLeast(0L)
+        } else {
+            0L
+        }
+        return mapOf(
+            "killed" to killed,
+            "freedKb" to freedKb,
+            "freeKb" to freeAfter,
+        )
+    }
+
+    private fun readMemFreeKb(): Long {
+        try {
+            java.io.BufferedReader(java.io.FileReader("/proc/meminfo")).use { reader ->
+                for (line in reader.readLines()) {
+                    if (line.startsWith("MemFree:")) {
+                        return line.trim().split(Regex("\\s+"))[1].toLong()
+                    }
+                }
+            }
+        } catch (e: Exception) {
+            return -1L
+        }
+        return -1L
+    }
+
+    // Kill loop: returns the number of closed background processes.
+    private fun killThirdPartyBackground(): Int {
+        val critical = setOf(packageName, "com.topjohnwu.magisk")
+
+        // Primary path with root: kill background processes of RUNNING
+        // third-party packages except the critical ones; report the delta of
+        // the total process count. System packages are never targeted.
+        try {
+            val command = "RUN=\$(ps -A -o NAME | sed 's/:.*\$//' | sort -u); " +
+                "B=\$(ps -A -o NAME | wc -l); " +
+                "for p in \$(pm list packages -3 | sed 's/^package://'); do " +
+                "case \$p in com.topjohnwu.magisk|me.efesser.flauncher) continue;; esac; " +
+                "echo \"\$RUN\" | grep -qx \"\$p\" && am kill \$p 2>/dev/null; done; " +
+                "sleep 1; A=\$(ps -A -o NAME | wc -l); echo KILLED=\$((B - A))"
+            val process = Runtime.getRuntime().exec(arrayOf("su", "-c", command))
+            val output = process.inputStream.bufferedReader().readText()
+            process.waitFor()
+            val match = Regex("KILLED=(\\d+)").find(output)
+            if (match != null) {
+                return match.groupValues[1].toInt().coerceAtLeast(0)
+            }
+        } catch (e: Exception) {
+            // su unavailable - fall through to the non-root path.
+        }
+
+        // Fallback without root: launchable third-party apps only.
+        var killed = 0
+        try {
+            val activityManager = getSystemService(ACTIVITY_SERVICE) as ActivityManager
+            val launchIntents = listOf(
+                Intent(ACTION_MAIN).addCategory(CATEGORY_LAUNCHER),
+                Intent(ACTION_MAIN).addCategory(CATEGORY_LEANBACK_LAUNCHER),
+            )
+            val packages = LinkedHashSet<String>()
+            for (intent in launchIntents) {
+                for (resolveInfo in packageManager.queryIntentActivities(intent, 0)) {
+                    val info = resolveInfo.activityInfo
+                    val target = info.packageName
+                    if (critical.contains(target)) {
+                        continue
+                    }
+                    if ((info.applicationInfo.flags and ApplicationInfo.FLAG_SYSTEM) != 0) {
+                        continue
+                    }
+                    packages.add(target)
+                }
+            }
+            for (targetPackage in packages) {
+                try {
+                    activityManager.killBackgroundProcesses(targetPackage)
+                    killed++
+                } catch (e: Exception) {
+                    // Ignore protected packages.
+                }
+            }
+        } catch (e: Exception) {
+            return killed
+        }
+        return killed
     }
 
     private fun drawableToByteArray(drawable: Drawable): ByteArray? {

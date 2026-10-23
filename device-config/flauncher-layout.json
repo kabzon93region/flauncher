@@ -1,0 +1,233 @@
+{
+  "device": {
+    "model": "VONTAR X4",
+    "serial": "DPI63a0MIDLE0000",
+    "flauncher": "0.18.0-tvbox (custom build)"
+  },
+  "exported_at": "2026-10-23T17:19:28+03:00",
+  "note": "Category layout of the home screen. Three packages are excluded from this export by the owner's decision (their names are not published); on the device they keep their placement in the utilities category.",
+  "excluded_packages_count": 3,
+  "total_apps": 36,
+  "categories": [
+    {
+      "order": 0,
+      "name": "Избранное",
+      "type": "row",
+      "row_height": 110,
+      "columns_count": 6,
+      "sort": "manual",
+      "apps": [
+        {
+          "package": "org.smarttube.stable",
+          "label": "SmartTube",
+          "order": 0
+        },
+        {
+          "package": "com.swiftsoft.anixartd",
+          "label": "Anixart",
+          "order": 1
+        },
+        {
+          "package": "ru.kinopoisk.tv",
+          "label": "Кинопоиск",
+          "order": 2
+        },
+        {
+          "package": "ru.yourok.num",
+          "label": "NUM",
+          "order": 3
+        },
+        {
+          "package": "org.slimboxtv.appdrawer",
+          "label": "Приложения",
+          "order": 4
+        }
+      ]
+    },
+    {
+      "order": 1,
+      "name": "Кино и сериалы",
+      "type": "grid",
+      "row_height": 110,
+      "columns_count": 6,
+      "sort": "manual",
+      "apps": [
+        {
+          "package": "com.vk.tv",
+          "label": "VK Видео",
+          "order": 0
+        },
+        {
+          "package": "ru.rutube.app",
+          "label": "RUTUBE",
+          "order": 1
+        },
+        {
+          "package": "ru.tiardev.kinotrend",
+          "label": "KinoTrend",
+          "order": 2
+        },
+        {
+          "package": "mobi.zona",
+          "label": "Zona",
+          "order": 3
+        },
+        {
+          "package": "ar.tvplayer.tv",
+          "label": "TiviMate",
+          "order": 4
+        },
+        {
+          "package": "co.albox.tvtv",
+          "label": "TV Box Android TV",
+          "order": 5
+        },
+        {
+          "package": "com.mxtech.videoplayer.ad",
+          "label": "MX Player",
+          "order": 6
+        },
+        {
+          "package": "ru.twicker.serialtrend",
+          "label": "SerialTrend",
+          "order": 7
+        }
+      ]
+    },
+    {
+      "order": 2,
+      "name": "Интернет и соцсети",
+      "type": "grid",
+      "row_height": 110,
+      "columns_count": 6,
+      "sort": "manual",
+      "apps": [
+        {
+          "package": "com.android.chrome",
+          "label": "Chrome",
+          "order": 0
+        },
+        {
+          "package": "com.vkontakte.android",
+          "label": "VK",
+          "order": 1
+        },
+        {
+          "package": "ru.fourpda.client",
+          "label": "4PDA",
+          "order": 2
+        },
+        {
+          "package": "ru.vk.store",
+          "label": "RuStore",
+          "order": 3
+        },
+        {
+          "package": "ru.vk.store.tv",
+          "label": "RuStore",
+          "order": 4
+        }
+      ]
+    },
+    {
+      "order": 3,
+      "name": "Утилиты и настройки",
+      "type": "grid",
+      "row_height": 110,
+      "columns_count": 6,
+      "sort": "manual",
+      "apps": [
+        {
+          "package": "com.lonelycatgames.Xplore",
+          "label": "X-plore",
+          "order": 0
+        },
+        {
+          "package": "fr.webrox.landrive",
+          "label": "LAN drive",
+          "order": 1
+        },
+        {
+          "package": "eu.thedarken.sdm",
+          "label": "SD Maid",
+          "order": 2
+        },
+        {
+          "package": "com.ruet_cse_1503050.ragib.appbackup.pro",
+          "label": "Alpha Backup Pro",
+          "order": 3
+        },
+        {
+          "package": "ru.andr7e.deviceinfohw.pro",
+          "label": "Device Info HW+",
+          "order": 4
+        },
+        {
+          "package": "ru.yourok.technozon",
+          "label": "TInstaller",
+          "order": 5
+        },
+        {
+          "package": "com.emanuelef.remote_capture",
+          "label": "PCAPdroid",
+          "order": 6
+        },
+        {
+          "package": "su.happ.proxyutility",
+          "label": "Happ",
+          "order": 7
+        },
+        {
+          "package": "com.topjohnwu.magisk",
+          "label": "Magisk",
+          "order": 8
+        },
+        {
+          "package": "me.efesser.flauncher",
+          "label": "FLauncher",
+          "order": 9
+        },
+        {
+          "package": "com.google.android.tv.remote.service",
+          "label": "Android TV Remote Service",
+          "order": 10
+        },
+        {
+          "package": "ru.littlevictor.powermenu",
+          "label": "Меню питания",
+          "order": 11
+        },
+        {
+          "package": "org.liskovsoft.androidtv.rukeyboard",
+          "label": "LeanKey Keyboard Pro",
+          "order": 12
+        },
+        {
+          "package": "com.dolby.ds1appUI",
+          "label": "Dolby",
+          "order": 13
+        },
+        {
+          "package": "com.pittvandewitt.viperfx",
+          "label": "ViPER4Android FX",
+          "order": 14
+        },
+        {
+          "package": "com.android.tv.settings",
+          "label": "Настройки",
+          "order": 15
+        },
+        {
+          "package": "com.google.android.deskclock",
+          "label": "Часы",
+          "order": 16
+        },
+        {
+          "package": "ru.yourok.torrserve",
+          "label": "TorrServe MatriX",
+          "order": 18
+        }
+      ]
+    }
+  ]
+}

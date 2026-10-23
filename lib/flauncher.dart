@@ -80,6 +80,30 @@ class FLauncher extends StatelessWidget {
 
   AppBar _appBar(BuildContext context) => AppBar(
         actions: [
+          IconButton(
+            padding: EdgeInsets.all(2),
+            constraints: BoxConstraints(),
+            splashRadius: 20,
+            icon: Icon(Icons.rocket_launch_outlined),
+            tooltip: "Очистить память",
+            onPressed: () async {
+              final stats = await context.read<AppsService>().clearMemory();
+              final killed = (stats["killed"] as num?)?.toInt() ?? 0;
+              final freedMb = (((stats["freedKb"] as num?) ?? 0) / 1024).round();
+              final freeMb = (((stats["freeKb"] as num?) ?? -1) / 1024).round();
+              final closed = killed > 0
+                  ? "Закрыто фоновых приложений: $killed"
+                  : "Нет фоновых приложений для закрытия";
+              final freed = freedMb > 0 ? " · освобождено $freedMb МБ" : "";
+              final free = freeMb >= 0 ? " · свободно $freeMb МБ" : "";
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(
+                  content: Text("$closed$freed$free"),
+                  duration: Duration(seconds: 3),
+                ),
+              );
+            },
+          ),
           Stack(
             alignment: Alignment.center,
             children: [
